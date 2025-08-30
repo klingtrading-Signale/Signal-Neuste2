@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>AJS Binance Self-Test</title>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;max-width:980px;margin:20px auto;padding:0 12px}
+    .row{display:grid;grid-template-columns:200px 1fr;gap:8px;margin:6px 0}
+    input,select{padding:6px;border:1px solid #ccc;border-radius:8px}
+    code{background:#f7f7f7;padding:2px 6px;border-radius:6px}
+  </style>
+  <script>window.AJS_BINANCE_PROXY="https://binanceverbindung.martkling6.workers.dev";</script>
+</head>
+<body>
+  <h1>Binance Connector – Self-Test</h1>
+  <p>Wenn hier alles funktioniert, ist dein Worker & die Scripts ok. Danach in deiner echten App nur die Pfade/IDs anpassen.</p>
+
+  <div class="row">
+    <label for="market">Market</label>
+    <select id="market">
+      <option value="">-- bitte wählen --</option>
+      <option value="BTC">BTC (manuell)</option>
+    </select>
+  </div>
+
+  <div class="row"><label>cPrice</label><input id="cPrice" /></div>
+  <div class="row"><label>cFunding</label><input id="cFunding" /></div>
+  <div class="row"><label>cOI</label><input id="cOI" /></div>
+  <div class="row"><label>cOpen</label><input id="cOpen" /></div>
+  <div class="row"><label>cHigh</label><input id="cHigh" /></div>
+  <div class="row"><label>cLow</label><input id="cLow" /></div>
+  <div class="row"><label>cATR</label><input id="cATR" /></div>
+  <div class="row"><label>cPOC</label><input id="cPOC" /></div>
+  <div class="row"><label>cVAH</label><input id="cVAH" /></div>
+  <div class="row"><label>cVAL</label><input id="cVAL" /></div>
+
+  <hr/>
+  <p><b>Proxy:</b> <code id="p"></code></p>
+
+  <script src="./binance-auto.js"></script>
+  <script src="./binance-vp.js"></script>
+  <script>
+    document.getElementById('p').textContent = window.AJS_BINANCE_PROXY;
+  </script>
+</body>
+</html>
