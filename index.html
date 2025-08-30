@@ -1,379 +1,192 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>A++ Signal Generator</title>
-  <link rel="stylesheet" href="./styles.css"/>
-  <!-- pdf.js (für Option-Chain PDF Upload & Parsing) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script>
-    if (window['pdfjsLib']) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-    }
-  </script>
+  <meta charset="utf-8">
+  <title>Signal Webtool – mit TV-Import</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Optional: Mini-Styles nur für diese Demo-Seite (dein Design bleibt unberührt, wenn du nur den Import-Block übernimmst) -->
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;max-width:980px;margin:32px auto;padding:0 16px}
+    h1{margin:0 0 16px}
+    .grid{display:grid;grid-template-columns:200px 1fr;gap:10px;margin:10px 0}
+    input,select{padding:8px;border:1px solid #ccc;border-radius:8px}
+    .card{border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin:18px 0}
+    .muted{opacity:.7}
+  </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <img src="./assets/logo-placeholder.svg" alt="Logo" class="logo"/>
-      <h1>A++ Signal Generator</h1>
+
+  <h1>Signal Webtool (Demo mit TV-Import)</h1>
+
+  <div class="card">
+    <div class="grid">
+      <label for="date">Datum</label>
+      <input id="date" name="date" type="date">
     </div>
-    <div class="meta">Prototype • v1.0</div>
-  </header>
 
-  <main class="container">
-    <section class="card">
-      <h2>Markt & Daten</h2>
-      <div class="grid grid-2">
-        <div>
-          <label>Markt</label>
-          <select id="market">
-            <option value="ES">ES</option>
-            <option value="MES">MES</option>
-            <option value="NQ">NQ</option>
-            <option value="MNQ">MNQ</option>
-            <option value="BTC">BTC</option>
-            <option value="DOGE">Dogecoin</option>
-            <option value="SOL">Solana</option>
-            <option value="SHIB">Shiba Inu</option>
-            <option value="XRP">XRP</option>
-          </select>
-        </div>
-        <div>
-          <label>Datum</label>
-          <input id="date" type="text" placeholder="z.B. 12.08.2025"/>
-        </div>
-      </div>
-
-      <div id="futures-fields">
-        <div class="grid grid-3">
-          <div>
-            <label>Vortag VAH</label>
-            <input id="prevVAH" type="number" step="0.25" />
-          </div>
-          <div>
-            <label>Vortageshoch (VTH)</label>
-            <input id="prevHigh" type="number" step="0.25" />
-          </div>
-          <div>
-            <label>Vortag POC</label>
-            <input id="prevPOC" type="number" step="0.25" />
-          </div>
-        </div>
-        <div class="grid grid-3">
-          <div>
-            <label>Vortag VAL</label>
-            <input id="prevVAL" type="number" step="0.25" />
-          </div>
-          <div>
-            <label>Vortagestief (VTL)</label>
-            <input id="prevLow" type="number" step="0.25" />
-          </div>
-          <div>
-            <label>Max Pain (0DTE)</label>
-            <input id="maxPain" type="number" step="0.01"/>
-          </div>
-        </div>
-        <div class="grid grid-3">
-          <div>
-            <label>GEX</label>
-            <select id="gex">
-              <option value="positiv">positiv</option>
-              <option value="neutral">neutral</option>
-              <option value="negativ">negativ</option>
-            </select>
-          </div>
-          <div>
-            <label>Gamma Flip</label>
-            <input id="gammaFlip" type="number" step="0.01"/>
-          </div>
-          <div>
-            <label>Eröffnung</label>
-            <div class="grid grid-2">
-              <select id="openContext">
-                <option value="ueberVTH">Über VTH</option>
-                <option value="unterVTH">Unter VTH</option>
-                <option value="innerhalb">Innerhalb Vortagesrange</option>
-              </select>
-              <select id="gapType">
-                <option value="keinGap">Kein Gap</option>
-                <option value="gapUp">Gap Up</option>
-                <option value="gapDown">Gap Down</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="grid grid-3">
-          <div>
-            <label>ATR Daily</label>
-            <input id="atr" type="number" step="0.01"/>
-          </div>
-          <div>
-            <label>VIX</label>
-            <input id="vix" type="number" step="0.01"/>
-          </div>
-          <div>
-            <label>Aktueller Preis</label>
-            <input id="price" type="number" step="0.25"/>
-          </div>
-        </div>
-
-        <div id="nq-oi-fields" class="grid grid-2" style="display:none;">
-          <div>
-            <label>Call OI (Strike / OI)</label>
-            <input id="callOI" type="text" placeholder="z.B. 23400 / 246"/>
-          </div>
-          <div>
-            <label>Put OI (Strike / OI)</label>
-            <input id="putOI" type="text" placeholder="z.B. 23100 / 194"/>
-          </div>
-        </div>
-
-        <div id="option-pdf" class="uploader">
-          <label>Option Chain (PDF hochladen für ES/MES)</label>
-          <input id="pdfFile" type="file" accept="application/pdf"/>
-          <div id="pdfStatus" class="muted">Noch keine Datei…</div>
-        </div>
-      </div>
-
-      <div id="crypto-fields" style="display:none;">
-        <div class="grid grid-3">
-          <div>
-            <label>Eröffnung Tageskerze</label>
-            <input id="cOpen" type="number" step="0.01"/>
-          </div>
-          <div>
-            <label>Vortageshoch</label>
-            <input id="cHigh" type="number" step="0.01"/>
-          </div>
-          <div>
-            <label>Vortagestief</label>
-            <input id="cLow" type="number" step="0.01"/>
-          </div>
-        </div>
-        <div class="grid grid-3">
-          <div>
-            <label>VAH</label>
-            <input id="cVAH" type="number" step="0.01"/>
-          </div>
-          <div>
-            <label>POC</label>
-            <input id="cPOC" type="number" step="0.01"/>
-          </div>
-          <div>
-            <label>VAL</label>
-            <input id="cVAL" type="number" step="0.01"/>
-          </div>
-        </div>
-        <div class="grid grid-3">
-          <div>
-            <label>ATR Daily</label>
-            <input id="cATR" type="number" step="0.01"/>
-          </div>
-          <div>
-            <label>Funding Rate (%)</label>
-            <input id="cFunding" type="number" step="0.0001" placeholder="z.B. 0.0015"/>
-          </div>
-          <div>
-            <label>OI (%)</label>
-            <input id="cOI" type="number" step="0.01" placeholder="z.B. 3.32"/>
-          </div>
-        </div>
-        <div class="grid grid-1">
-          <div>
-            <label>Aktueller Preis</label>
-            <input id="cPrice" type="number" step="0.01"/>
-          </div>
-        </div>
-      </div>
-
-      <hr/>
-      <h3>Risikoparameter</h3>
-      <div class="grid grid-3">
-        <div>
-          <label>Kontogröße ($)</label>
-          <input id="acct" type="number" step="1" placeholder="z.B. 2000"/>
-        </div>
-        <div>
-          <label>Risiko pro Trade ($)</label>
-          <input id="riskPerTrade" type="number" step="1" placeholder="z.B. 50"/>
-        </div>
-        <div>
-          <label>CRV Mindestfilter</label>
-          <select id="rrFilter">
-            <option value="1">≥ 1:1</option>
-            <option value="2">≥ 2:1</option>
-            <option value="3" selected>≥ 3:1</option>
-            <option value="5">≥ 5:1</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid grid-3">
-        <div>
-          <label>Anzahl TPs</label>
-          <select id="tpCount">
-            <option value="1" selected>1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-        </div>
-        <div>
-          <label>Kontrakt-Empfehlung</label>
-          <select id="contractType">
-            <option value="auto" selected>Automatisch</option>
-            <option value="mini">Mini bevorzugen</option>
-            <option value="micro">Micro bevorzugen</option>
-          </select>
-        </div>
-        <div>
-          <label>CRV-Only Filter aktiv</label>
-          <select id="crvStrict">
-            <option value="on" selected>Ja</option>
-            <option value="off">Nein</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button id="generate">Signal generieren</button>
-        <button id="reset">Formular zurücksetzen</button>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>Handelssignal</h2>
-      <div id="signalArea" class="signal-area">
-        <div class="muted">Noch kein Signal generiert.</div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <span>© 2025 A++ Strategy Prototype</span>
-  </footer>
-
-  <script src="./logic.js"></script>
-<!-- AJS TV-IMPORT (inline, keine externen Dateien nötig) -->
-<style id="ajs-tv-css">
-  #ajs-tv{position:fixed;left:12px;bottom:12px;z-index:99999;font-family:system-ui,Arial,sans-serif}
-  #ajs-tv-toggle{background:#0ea5e9;color:#fff;border:none;border-radius:10px;padding:8px 12px;box-shadow:0 4px 14px rgba(0,0,0,.15);cursor:pointer}
-  #ajs-tv-panel{position:fixed;left:12px;bottom:56px;width:360px;max-width:90vw;background:#111;color:#fff;border-radius:12px;padding:12px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
-  #ajs-tv-panel label{display:block;font-weight:600;margin-bottom:6px}
-  #ajs-tv-panel textarea{width:100%;min-height:140px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff;padding:8px;font-family:ui-monospace, Menlo, monospace}
-  #ajs-tv .row{margin:10px 0}
-  #ajs-tv .actions{display:flex;gap:8px;flex-wrap:wrap}
-  #ajs-tv .primary{background:#22c55e;color:#111;border:none;border-radius:10px;padding:8px 12px;cursor:pointer}
-  #ajs-tv .ghost{background:#333;color:#fff;border:none;border-radius:10px;padding:8px 12px;cursor:pointer}
-  #ajs-tv .msg{margin-top:8px;font-size:12px;opacity:.9}
-  #ajs-tv .msg.ok{color:#22c55e} .msg.warn{color:#f59e0b}
-</style>
-<div id="ajs-tv">
-  <button id="ajs-tv-toggle" aria-expanded="false" title="TradingView-Daten einfügen">TV-Import</button>
-  <div id="ajs-tv-panel" hidden>
-    <div class="row">
-      <label>Einfügen (Text aus deinem TradingView-Indikator)</label>
-      <textarea id="ajs-tv-txt" placeholder="Hier den Text aus dem TradingView-Indikator einfügen…"></textarea>
+    <div class="grid">
+      <label for="market">Market</label>
+      <select id="market" name="market">
+        <!-- Beispiel-Einträge; dein Tool kann hier andere Werte haben -->
+        <option value="">— wählen —</option>
+        <option>BTC</option>
+        <option>BTCUSDT</option>
+        <option>ETH</option>
+        <option>SOL</option>
+      </select>
     </div>
-    <div class="row">
-      <div style="opacity:.8;font-size:12px">Oder eine <b>.txt</b>-Datei laden:</div>
-      <input type="file" id="ajs-tv-file" accept=".txt,text/plain">
+
+    <div class="grid">
+      <label for="cPrice">Aktueller Kurs (cPrice)</label>
+      <input id="cPrice" name="cPrice" type="text" placeholder="wird vom Import gesetzt">
     </div>
-    <div class="row actions">
-      <button id="ajs-tv-paste">Aus Zwischenablage einfügen</button>
-      <button id="ajs-tv-apply" class="primary">Übernehmen</button>
-      <button id="ajs-tv-close" class="ghost">Schließen</button>
+
+    <div class="grid">
+      <label for="cOpen">Eröffnung (cOpen)</label>
+      <input id="cOpen" name="cOpen" type="text" placeholder="wird vom Import gesetzt">
     </div>
-    <div id="ajs-tv-msg" class="msg" aria-live="polite"></div>
+
+    <div class="grid">
+      <label for="cHigh">Vortageshoch (cHigh)</label>
+      <input id="cHigh" name="cHigh" type="text" placeholder="wird vom Import gesetzt">
+    </div>
+
+    <div class="grid">
+      <label for="cLow">Vortagestief (cLow)</label>
+      <input id="cLow" name="cLow" type="text" placeholder="wird vom Import gesetzt">
+    </div>
+
+    <div class="grid">
+      <label for="cATR">ATR(14) Daily (cATR)</label>
+      <input id="cATR" name="cATR" type="text" placeholder="wird vom Import gesetzt">
+    </div>
+
+    <p class="muted">Hinweis: Der TV-Import klickt/füllt nur diese Felder. Dein restliches UI bleibt unverändert.</p>
   </div>
-</div>
-<script>
-(function(){
-  const Q=(s,r=document)=>r.querySelector(s);
-  const msg=(t,cls="")=>{const m=Q("#ajs-tv-msg"); if(!m)return; m.className="msg "+cls; m.textContent=t;}
-  const deNum=(s)=>{ if(s==null)return null; s=(""+s).trim(); if(!s)return null;
-    if(s.includes(",")&&s.includes(".")){ s=s.replace(/\./g,"").replace(",","."); }
-    else if(s.includes(",")){ s=s.replace(",","."); }
-    const n=Number(s); return Number.isFinite(n)?n:null;
-  };
-  function parse(text){
-    const get=(label)=>{ const re=new RegExp(label+"\\s*:\\s*([^\\n\\r]+)","i"); const m=text.match(re); return m?m[1].trim():null; };
-    const date=get("Datum");
-    const marketRaw=get("Markt");
-    const price=deNum(get("Aktueller\\s*Kurs"));
-    const prevHigh=deNum(get("Vortageshoch"));
-    const prevLow=deNum(get("Vortagestief"));
-    const open=deNum(get("Eröffnung"));
-    // ATR (Daily, 14): ...
-    const atrMatch=text.match(/ATR\\s*\\(.*?\\)\\s*:\\s*([^\\n\\r]+)/i);
-    const atr=deNum(atrMatch?atrMatch[1].trim():null);
 
-    // Basis aus Markt ableiten (BTCUSDT -> BTC, ES1! -> ES, BTC/USDT -> BTC, etc.)
-    let base="";
-    if(marketRaw){
-      const m=marketRaw.toUpperCase();
-      const m1=m.match(/^([A-Z]{2,6})/);
-      base=m1?m1[1]:m;
-      base=base.replace(/(USDT|USD)$/, "");
+  <!-- =========================================================
+       AJS TV-IMPORT (inline, keine externen Dateien nötig)
+       → Diesen gesamten Block in deine bestehende index.html
+         direkt vor </body> einfügen, wenn du nur integrieren willst.
+       ========================================================= -->
+  <style id="ajs-tv-css">
+    #ajs-tv{position:fixed;left:12px;bottom:12px;z-index:99999;font-family:system-ui,Arial,sans-serif}
+    #ajs-tv-toggle{background:#0ea5e9;color:#fff;border:none;border-radius:10px;padding:8px 12px;box-shadow:0 4px 14px rgba(0,0,0,.15);cursor:pointer}
+    #ajs-tv-panel{position:fixed;left:12px;bottom:56px;width:360px;max-width:90vw;background:#111;color:#fff;border-radius:12px;padding:12px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+    #ajs-tv-panel label{display:block;font-weight:600;margin-bottom:6px}
+    #ajs-tv-panel textarea{width:100%;min-height:140px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff;padding:8px;font-family:ui-monospace, Menlo, monospace}
+    #ajs-tv .row{margin:10px 0}
+    #ajs-tv .actions{display:flex;gap:8px;flex-wrap:wrap}
+    #ajs-tv .primary{background:#22c55e;color:#111;border:none;border-radius:10px;padding:8px 12px;cursor:pointer}
+    #ajs-tv .ghost{background:#333;color:#fff;border:none;border-radius:10px;padding:8px 12px;cursor:pointer}
+    #ajs-tv .msg{margin-top:8px;font-size:12px;opacity:.9}
+    #ajs-tv .msg.ok{color:#22c55e} .msg.warn{color:#f59e0b}
+  </style>
+  <div id="ajs-tv">
+    <button id="ajs-tv-toggle" aria-expanded="false" title="TradingView-Daten einfügen">TV-Import</button>
+    <div id="ajs-tv-panel" hidden>
+      <div class="row">
+        <label>Einfügen (Text aus deinem TradingView-Indikator)</label>
+        <textarea id="ajs-tv-txt" placeholder="Hier den Text aus dem TradingView-Indikator einfügen…"></textarea>
+      </div>
+      <div class="row">
+        <div style="opacity:.8;font-size:12px">Oder eine <b>.txt</b>-Datei laden:</div>
+        <input type="file" id="ajs-tv-file" accept=".txt,text/plain">
+      </div>
+      <div class="row actions">
+        <button id="ajs-tv-paste">Aus Zwischenablage einfügen</button>
+        <button id="ajs-tv-apply" class="primary">Übernehmen</button>
+        <button id="ajs-tv-close" class="ghost">Schließen</button>
+      </div>
+      <div id="ajs-tv-msg" class="msg" aria-live="polite"></div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    const Q=(s,r=document)=>r.querySelector(s);
+    const msg=(t,cls="")=>{const m=Q("#ajs-tv-msg"); if(!m)return; m.className="msg "+cls; m.textContent=t;}
+    const deNum=(s)=>{ if(s==null)return null; s=(""+s).trim(); if(!s)return null;
+      if(s.includes(",")&&s.includes(".")){ s=s.replace(/\./g,"").replace(",","."); }
+      else if(s.includes(",")){ s=s.replace(",","."); }
+      const n=Number(s); return Number.isFinite(n)?n:null;
+    };
+    function parse(text){
+      const get=(label)=>{ const re=new RegExp(label+"\\s*:\\s*([^\\n\\r]+)","i"); const m=text.match(re); return m?m[1].trim():null; };
+      const date=get("Datum");
+      const marketRaw=get("Markt");
+      const price=deNum(get("Aktueller\\s*Kurs"));
+      const prevHigh=deNum(get("Vortageshoch"));
+      const prevLow=deNum(get("Vortagestief"));
+      const open=deNum(get("Eröffnung"));
+      const atrMatch=text.match(/ATR\\s*\\(.*?\\)\\s*:\\s*([^\\n\\r]+)/i);
+      const atr=deNum(atrMatch?atrMatch[1].trim():null);
+
+      // Basis aus Markt ableiten (BTCUSDT -> BTC, BTC/USDT -> BTC, ES1! -> ES)
+      let base="";
+      if(marketRaw){
+        const m=marketRaw.toUpperCase();
+        const m1=m.match(/^([A-Z]{2,6})/);
+        base=m1?m1[1]:m;
+        base=base.replace(/(USDT|USD)$/,"");
+      }
+      return {date, base, price, prevHigh, prevLow, open, atr};
     }
-    return {date, base, price, prevHigh, prevLow, open, atr};
-  }
-  function pick(sel){
-    return document.getElementById(sel)
-      || document.querySelector('[name="'+sel+'"]')
-      || document.querySelector('[data-ajs="'+sel+'"]')
-      || null;
-  }
-  function put(id,val,dig){ const el=pick(id); if(!el||val==null||!isFinite(val)) return false; el.value=Number(val).toFixed(dig); return true; }
-  function setMarket(base){
-    if(!base) return false;
-    const el=document.getElementById("market")||document.querySelector('[name="market"]');
-    if(!el) return false;
-    const opts=Array.from(el.options||[]);
-    const e1=opts.find(o=>o.value.toUpperCase()===base || (o.textContent||"").toUpperCase()===base);
-    if(e1){ el.value=e1.value; el.dispatchEvent(new Event("change",{bubbles:true})); return true; }
-    const e2=opts.find(o=>((o.textContent||"")+o.value).toUpperCase().includes(base));
-    if(e2){ el.value=e2.value; el.dispatchEvent(new Event("change",{bubbles:true})); return true; }
-    return false;
-  }
+    function pick(sel){
+      return document.getElementById(sel)
+        || document.querySelector('[name="'+sel+'"]')
+        || document.querySelector('[data-ajs="'+sel+'"]')
+        || null;
+    }
+    function put(id,val,dig){ const el=pick(id); if(!el||val==null||!isFinite(val)) return false; el.value=Number(val).toFixed(dig); return true; }
+    function setMarket(base){
+      if(!base) return false;
+      const el=document.getElementById("market")||document.querySelector('[name="market"]');
+      if(!el) return false;
+      const opts=Array.from(el.options||[]);
+      const e1=opts.find(o=>o.value.toUpperCase()===base || (o.textContent||"").toUpperCase()===base);
+      if(e1){ el.value=e1.value; el.dispatchEvent(new Event("change",{bubbles:true})); return true; }
+      const e2=opts.find(o=>((o.textContent||"")+o.value).toUpperCase().includes(base));
+      if(e2){ el.value=e2.value; el.dispatchEvent(new Event("change",{bubbles:true})); return true; }
+      return false;
+    }
 
-  // UI
-  const btn=Q("#ajs-tv-toggle"), panel=Q("#ajs-tv-panel"), ta=Q("#ajs-tv-txt"), file=Q("#ajs-tv-file");
-  btn.onclick=()=>{ const open=panel.hidden; panel.hidden=!open; btn.setAttribute("aria-expanded", String(open)); };
-  Q("#ajs-tv-close").onclick=()=>{ panel.hidden=true; btn.setAttribute("aria-expanded","false"); };
+    // UI
+    const btn=Q("#ajs-tv-toggle"), panel=Q("#ajs-tv-panel"), ta=Q("#ajs-tv-txt"), file=Q("#ajs-tv-file");
+    btn.onclick=()=>{ const open=panel.hidden; panel.hidden=!open; btn.setAttribute("aria-expanded", String(open)); };
+    Q("#ajs-tv-close").onclick=()=>{ panel.hidden=true; btn.setAttribute("aria-expanded","false"); };
 
-  Q("#ajs-tv-paste").onclick=async ()=>{
-    try{
-      const t=await navigator.clipboard.readText();
-      if(t){ ta.value=t; msg("Text eingefügt. Jetzt „Übernehmen“ klicken."); }
-      else{ msg("Zwischenablage leer oder blockiert. Text manuell einfügen.", "warn"); }
-    }catch(_){ msg("Kein Zugriff auf Zwischenablage. Text manuell einfügen.", "warn"); }
-  };
-  file.onchange=async (ev)=>{
-    const f=ev.target.files && ev.target.files[0]; if(!f) return;
-    ta.value=await f.text(); msg("Datei geladen. Jetzt „Übernehmen“ klicken.");
-  };
+    Q("#ajs-tv-paste").onclick=async ()=>{
+      try{
+        const t=await navigator.clipboard.readText();
+        if(t){ ta.value=t; msg("Text eingefügt. Jetzt „Übernehmen“ klicken."); }
+        else{ msg("Zwischenablage leer oder blockiert. Text manuell einfügen.", "warn"); }
+      }catch(_){ msg("Kein Zugriff auf Zwischenablage. Text manuell einfügen.", "warn"); }
+    };
+    file.onchange=async (ev)=>{
+      const f=ev.target.files && ev.target.files[0]; if(!f) return;
+      ta.value=await f.text(); msg("Datei geladen. Jetzt „Übernehmen“ klicken.");
+    };
 
-  Q("#ajs-tv-apply").onclick=()=>{
-    const raw=ta.value||""; if(!raw.trim()){ msg("Bitte zuerst Text einfügen oder Datei laden.", "warn"); return; }
-    const d=parse(raw);
-    let ok=false;
-    ok=setMarket(d.base)||ok;
-    ok=put("cPrice", d.price, 2)||ok;
-    ok=put("cOpen",  d.open , 2)||ok;
-    ok=put("cHigh",  d.prevHigh, 2)||ok; // Vortageshoch -> cHigh
-    ok=put("cLow",   d.prevLow , 2)||ok; // Vortagestief -> cLow
-    ok=put("cATR",   d.atr    , 4)||ok;
-    // Datum nur setzen, wenn ein Feld vorhanden ist
-    const dateEl=document.getElementById("date")||document.querySelector('[name="date"]');
-    if(dateEl && d.date){ try{ dateEl.value=d.date; ok=true; }catch(_){} }
+    Q("#ajs-tv-apply").onclick=()=>{
+      const raw=ta.value||""; if(!raw.trim()){ msg("Bitte zuerst Text einfügen oder Datei laden.", "warn"); return; }
+      const d=parse(raw);
+      let ok=false;
+      ok=setMarket(d.base)||ok;
+      ok=put("cPrice", d.price, 2)||ok;
+      ok=put("cOpen",  d.open , 2)||ok;
+      ok=put("cHigh",  d.prevHigh, 2)||ok; // Vortageshoch -> cHigh
+      ok=put("cLow",   d.prevLow , 2)||ok; // Vortagestief -> cLow
+      ok=put("cATR",   d.atr    , 4)||ok;
+      const dateEl=document.getElementById("date")||document.querySelector('[name="date"]');
+      if(dateEl && d.date){ try{ dateEl.value=d.date; ok=true; }catch(_){} }
 
-    if(ok){ msg("Werte übernommen ✅","ok"); panel.hidden=true; btn.setAttribute("aria-expanded","false"); }
-    else { msg("Keine passenden Eingabefelder gefunden. Prüfe IDs/Namen: market, date, cPrice, cOpen, cHigh, cLow, cATR","warn"); }
-  };
-})();
-</script>
-<!-- /AJS TV-IMPORT -->
+      if(ok){ msg("Werte übernommen ✅","ok"); panel.hidden=true; btn.setAttribute("aria-expanded","false"); }
+      else { msg("Keine passenden Eingabefelder gefunden. Prüfe IDs/Namen: market, date, cPrice, cOpen, cHigh, cLow, cATR","warn"); }
+    };
+  })();
+  </script>
+  <!-- /AJS TV-IMPORT -->
+
 </body>
 </html>
