@@ -12,6 +12,7 @@
       pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
     }
   </script>
+  <script>window.AJS_BINANCE_PROXY="https://YOUR-WORKER.workers.dev";</script>
 </head>
 <body>
   <header class="topbar">
@@ -247,11 +248,7 @@
       <div id="signalArea" class="signal-area">
         <div class="muted">Noch kein Signal generiert.</div>
       </div>
-    
-        <div class="actions" style="margin-top:8px">
-          <button id="ajsCopySignalBtn" disabled>Text kopieren</button>
-        </div>
-</section>
+    </section>
   </main>
 
   <footer class="footer">
@@ -259,7 +256,7 @@
   </footer>
 
   <script src="./logic.js"></script>
-  <script src="./share.js"></script>
-  <script src="./smartpaste.js"></script>
+  <script src="./binance-auto.js"></script>
+  <script src="./binance-vp.js"></script>
 </body>
 </html>
