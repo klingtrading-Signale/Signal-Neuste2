@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>AJS OKX Self-Test v4</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{font-family:system-ui,Arial,sans-serif;max-width:900px;margin:24px auto;padding:0 12px}.row{display:grid;grid-template-columns:180px 1fr;gap:10px;margin:8px 0}input,select{padding:6px;border:1px solid #ccc;border-radius:8px}</style>
+</head>
+<body>
+<h1>OKX Self-Test</h1>
+<p>Diese Seite nutzt automatisch <code>/api/okx</code> auf derselben Domain. Wähle <b>BTC</b> und prüfe, ob die Felder gefüllt werden.</p>
+<div class="row"><label for="market">Market</label><select id="market"><option>BTC</option><option>ETH</option><option>SOL</option></select></div>
+<div class="row"><label>cPrice</label><input id="cPrice"></div>
+<div class="row"><label>cFunding</label><input id="cFunding"></div>
+<div class="row"><label>cOI</label><input id="cOI"></div>
+<div class="row"><label>cOpen</label><input id="cOpen"></div>
+<div class="row"><label>cHigh</label><input id="cHigh"></div>
+<div class="row"><label>cLow</label><input id="cLow"></div>
+<div class="row"><label>cATR</label><input id="cATR"></div>
+<script src="./binance-auto.js"></script>
+<script src="./binance-vp.js"></script>
+</body>
+</html>

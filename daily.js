@@ -22,38 +22,34 @@ export default async function handler(request) {
     const t = (tj.data && tj.data[0]) || {};
     const price = +(t.last || 0);
 
-    // Funding rate (current/next)
+    // Funding rate
     const fr = await fetch(`https://www.okx.com/api/v5/public/funding-rate?instId=${instId}`, ua);
     if (!fr.ok) return new Response(await fr.text(), { status: fr.status, headers: CORS });
     const fj = await fr.json();
     const f = (fj.data && fj.data[0]) || {};
-    const funding = +(f.fundingRate || 0); // decimal
+    const funding = +(f.fundingRate || 0);
 
-    // Open Interest (oiCcy is in quote currency)
+    // Open Interest (USDT)
     const oi = await fetch(`https://www.okx.com/api/v5/public/open-interest?instId=${instId}`, ua);
     if (!oi.ok) return new Response(await oi.text(), { status: oi.status, headers: CORS });
     const oij = await oi.json();
     const o = (oij.data && oij.data[0]) || {};
     const oi_usd = +(o.oiCcy || 0);
-    const oi_pct = null; // percent of mcap not available without external supply
+    const oi_pct = null;
 
-    // Daily candles for prev H/L and today's open, ATR(14)
+    // Daily candles (1D)
     const kl = await fetch(`https://www.okx.com/api/v5/market/candles?instId=${instId}&bar=1D&limit=16`, ua);
     if (!kl.ok) return new Response(await kl.text(), { status: kl.status, headers: CORS });
     const kj = await kl.json();
     const arr = (kj.data || []).map(r => ({
-      ts: +r[0],
-      open: +r[1],
-      high: +r[2],
-      low:  +r[3],
-      close:+r[4]
+      ts: +r[0], open: +r[1], high: +r[2], low: +r[3], close: +r[4]
     })).sort((a,b)=>a.ts-b.ts);
     const n = arr.length;
     const todayOpen = n ? arr[n-1].open : 0;
     const prevHigh  = n>1 ? arr[n-2].high : 0;
     const prevLow   = n>1 ? arr[n-2].low  : 0;
 
-    // ATR(14) Wilder
+    // ATR(14)
     let atr = null;
     if (n >= 15) {
       const TR = [];

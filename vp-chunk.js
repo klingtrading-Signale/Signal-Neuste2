@@ -1,6 +1,5 @@
 export const config = { runtime: "edge", regions: ["iad1"] };
 
-// VP-Chunk aktuell deaktiviert (501), damit Frontend sofort läuft.
 export default async function handler(request) {
   const CORS = {
     "access-control-allow-origin": "*",
