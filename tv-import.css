@@ -1,0 +1,16 @@
+/* ajs- TradingView Import – klein & unauffällig */
+#ajs-tv{position:fixed;left:12px;bottom:12px;z-index:99999;font-family:system-ui,Arial,sans-serif}
+#ajs-tv-toggle{background:#0ea5e9;color:#fff;border:none;border-radius:10px;padding:8px 12px;box-shadow:0 4px 14px rgba(0,0,0,.15);cursor:pointer}
+#ajs-tv-panel{position:fixed;left:12px;bottom:56px;width:360px;max-width:90vw;background:#111;color:#fff;border-radius:12px;padding:12px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+#ajs-tv-panel label{display:block;font-weight:600;margin-bottom:6px}
+#ajs-tv-panel textarea{width:100%;min-height:140px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#fff;padding:8px;font-family:ui-monospace, Menlo, monospace}
+#ajs-tv .ajs-tv-row{margin:10px 0}
+#ajs-tv .ajs-tv-row input[type="file"]{width:100%}
+#ajs-tv .ajs-tv-row.ajs-tv-actions{display:flex;gap:8px;flex-wrap:wrap}
+#ajs-tv .ajs-tv-row .primary{background:#22c55e;color:#111}
+#ajs-tv .ajs-tv-row .ghost{background:#333;color:#fff}
+#ajs-tv .ajs-tv-msg{margin-top:8px;font-size:12px;opacity:.85}
+#ajs-tv .ajs-tv-msg[data-type="ok"]{color:#22c55e}
+#ajs-tv .ajs-tv-msg[data-type="warn"]{color:#f59e0b}
+#ajs-tv .ajs-tv-help{margin-top:8px}
+#ajs-tv .ajs-tv-hint{opacity:.8;font-size:12px}
