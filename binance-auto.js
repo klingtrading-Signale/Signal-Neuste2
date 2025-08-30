@@ -1,8 +1,9 @@
-// ajs- Binance auto dropdown + auto-fill (robust) v2
+// ajs- Auto dropdown + daily fill (OKX default proxy) v3
 (function(){ 
   const AJS = window.AJS || (window.AJS = {});
   AJS.log = (...a)=>console.log("[ajs:auto]", ...a);
-  const PROXY = (window.AJS_BINANCE_PROXY || "https://binanceverbindung.martkling6.workers.dev").replace(/\/$/,"");
+  const DEFAULT_PROXY = (typeof location!=="undefined" ? (location.origin + "/api/okx") : "");
+  const PROXY = (window.AJS_BINANCE_PROXY || DEFAULT_PROXY).replace(/\/$/,"");
   const KNOWN_BASES = ["BTC","ETH","SOL","XRP","BNB","DOGE","ADA","TRX","TON","LINK","AVAX","MATIC","DOT","LTC","BCH","SHIB","NEAR","APT","SUI","SEI","ARB","OP","PEPE","BONK","WIF"];
 
   function $(sel){ return document.querySelector(sel); }
@@ -28,6 +29,7 @@
   }
 
   async function loadSymbols(){
+    // OKX symbols
     const url = PROXY + "/symbols";
     AJS.log("fetch", url);
     return getJSON(url);
@@ -39,7 +41,7 @@
     const prefer = [], rest = [];
     for(const s of symbols){
       const val = s?.base;
-      const text = s?.symbol ? (s.symbol + " (Perp)") : val;
+      const text = s?.symbol || val;
       if(!val || existing.has(val)) continue;
       (KNOWN_BASES.includes(val) ? prefer : rest).push({val, text});
     }
@@ -62,8 +64,13 @@
     return getJSON(url);
   }
 
+  function pickField(id){
+    return document.getElementById(id)
+        || document.querySelector(`[name="${id}"]`)
+        || document.querySelector(`[data-ajs="${id}"]`);
+  }
   function setVal(id, value, digits){
-    const el = document.getElementById(id);
+    const el = pickField(id);
     if(!el || value==null || !isFinite(value)) return;
     el.value = Number(value).toFixed(digits);
   }
@@ -72,7 +79,7 @@
     if(!d) return;
     setVal("cPrice"  , d.price   , 2);
     setVal("cFunding", d.funding , 6);
-    setVal("cOI"     , d.oi_pct  , 2);
+    setVal("cOI"     , d.oi_pct  , 2); // OKX liefert oi_pct nicht -> bleibt leer/null
     setVal("cOpen"   , d.today_open, 2);
     setVal("cHigh"   , d.prev_high , 2);
     setVal("cLow"    , d.prev_low  , 2);
